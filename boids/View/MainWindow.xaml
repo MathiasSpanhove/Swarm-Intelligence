@@ -5,23 +5,46 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:View"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <ItemsControl ItemsSource="{Binding Simulation.World.Population}">
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Canvas />
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemContainerStyle>
-            <Style TargetType="{x:Type ContentPresenter}">
-                <Setter Property="Canvas.Left" Value="{Binding Position.Value.X}" />
-                <Setter Property="Canvas.Top" Value="{Binding Position.Value.Y}" />
-            </Style>
-        </ItemsControl.ItemContainerStyle>
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <Ellipse Fill="Red"  Width="25" Height="25" />
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+        Title="Swarm Intelligence (Boids)" Height="{Binding Simulation.World.Height.Value}" Width="{Binding Simulation.World.Width.Value}">
+    <Window.InputBindings>
+        <KeyBinding Key="Space" Command="{Binding Pause}"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="10*" MinWidth="200"/>
+        </Grid.ColumnDefinitions>
+
+        <ItemsControl ItemsSource="{Binding Simulation.World.Population}" Grid.Column="0" Width="{Binding Simulation.World.Width.Value}" Height="{Binding Simulation.World.Height.Value}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="{x:Type ContentPresenter}">
+                    <Setter Property="Canvas.Left" Value="{Binding Position.Value.X}" />
+                    <Setter Property="Canvas.Top" Value="{Binding Position.Value.Y}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding MaxSpeed}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Ellipse Fill="Red" Width="25" Height="25" />
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+        
+        <Grid Grid.Column="2">
+            <TextBlock TextWrapping="Wrap" Text="{Binding Simulation.World.Width.Value}"/>
+        </Grid>
+    </Grid>
 </Window>
