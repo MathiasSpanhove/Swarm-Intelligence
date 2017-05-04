@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:ViewModel;assembly=ViewModel">
     <Application.Resources>
         <DataTemplate DataType="{x:Type vm:RangedParamViewModel}" >
-            <view:Slider></view:Slider>
+            <view:Slider/>
         </DataTemplate>
         <ImageBrush x:Key="Galaxy" ImageSource="images/galaxy.jpg" />
     </Application.Resources>

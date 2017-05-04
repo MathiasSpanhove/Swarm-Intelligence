@@ -77,8 +77,10 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="TabItem">
-                                        <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Gainsboro" CornerRadius="4,4,0,0" Margin="2,0">
-                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="28,2"/>
+                                        <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Gainsboro" 
+                                                CornerRadius="4,4,0,0" Margin="2,0">
+                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                              ContentSource="Header" Margin="28,2"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsSelected" Value="True">
@@ -115,7 +117,7 @@
                         <ScrollViewer>
                             <StackPanel>
                                 <ComboBox ItemsSource="{Binding Simulation.Species}" 
-                                          SelectedItem="{Binding Simulation.SelectedSpecie, Mode=TwoWay}" 
+                                          SelectedItem="{Binding Simulation.SelectedSpecie}" 
                                           IsSynchronizedWithCurrentItem="True">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
@@ -123,13 +125,19 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <ItemsControl ItemsSource="{Binding Simulation.SelectedSpecie.Parameters}">
-                                    <ItemsControl.ItemTemplate>
+                                <ContentPresenter Content="{Binding Simulation.SelectedSpecie}">
+                                    <ContentPresenter.ContentTemplate>
                                         <DataTemplate>
-                                            <ContentControl Content="{Binding}"/>
+                                            <ItemsControl ItemsSource="{Binding Parameters}" >
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <ContentControl Content="{Binding}"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                    </ContentPresenter.ContentTemplate>
+                                </ContentPresenter>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>

@@ -96,8 +96,7 @@ namespace ViewModel
         }
     }
 
-    public class SimulationViewModel : INotifyPropertyChanged
-    {
+    public class SimulationViewModel : INotifyPropertyChanged {
         private readonly Simulation simulation;
 
         public SimulationViewModel(Simulation simulation)
@@ -108,16 +107,12 @@ namespace ViewModel
         }
 
         private World world => simulation.World;
-
         public WorldViewModel World => new WorldViewModel(world);
 
         private SpeciesViewModel _selectedSpecie;
         public SpeciesViewModel SelectedSpecie
         {
-            get
-            {
-                return _selectedSpecie;
-            }
+            get { return _selectedSpecie; }
             set
             {
                 _selectedSpecie = value;
@@ -128,10 +123,7 @@ namespace ViewModel
         private IEnumerable<SpeciesViewModel> _species;
         public IEnumerable<SpeciesViewModel> Species
         {
-            get
-            {
-                return _species;
-            }
+            get { return _species; }
             set
             {
                 _species = value;

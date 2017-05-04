@@ -21,8 +21,10 @@
         </StackPanel.Resources>
         <Label Content="{Binding Path=Label}"/>
         <DockPanel>
-            <TextBox Text="{Binding ElementName=slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-            <Slider Value="{Binding Path=Current.Value}" Minimum="{Binding Path=Minimum}" Maximum="{Binding Path=Maximum}" TickFrequency="{Binding Converter={StaticResource RangeToTickConverter}}" IsSnapToTickEnabled="True" Name="slider"/>
+            <TextBox Text="{Binding ElementName=slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                     DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+            <Slider Value="{Binding Path=Current.Value}" Minimum="{Binding Path=Minimum}" Maximum="{Binding Path=Maximum}" 
+                    TickFrequency="{Binding Converter={StaticResource RangeToTickConverter}}" IsSnapToTickEnabled="True" Name="slider"/>
         </DockPanel>
     </StackPanel>
 </UserControl>
