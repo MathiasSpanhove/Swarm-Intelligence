@@ -3,48 +3,138 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:View"
         mc:Ignorable="d"
-        Title="Swarm Intelligence (Boids)" Height="{Binding Simulation.World.Height.Value}" Width="{Binding Simulation.World.Width.Value}">
+        Title="Swarm Intelligence (Boids)" Height="1000" Width="1800"
+        Name="window"
+        FocusManager.FocusedElement="{Binding ElementName=window}">
     <Window.InputBindings>
         <KeyBinding Key="Space" Command="{Binding Pause}"/>
     </Window.InputBindings>
-    <Grid>
+    <Window.Resources>
+        <local:SpeciesToColorConverter x:Key="SpeciesToColorConverter" />
+        <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter" />
+        <local:_2DVectorToAngleConverter x:Key="_2DVectorToAngleConverter"/>
+    </Window.Resources>
+    <Grid Background="LightGray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="30*"/>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="10*" MinWidth="200"/>
+            <ColumnDefinition Width="10*" MinWidth="300" MaxWidth="600"/>
         </Grid.ColumnDefinitions>
-
-        <ItemsControl ItemsSource="{Binding Simulation.World.Population}" Grid.Column="0" Width="{Binding Simulation.World.Width.Value}" Height="{Binding Simulation.World.Height.Value}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemContainerStyle>
-                <Style TargetType="{x:Type ContentPresenter}">
-                    <Setter Property="Canvas.Left" Value="{Binding Position.Value.X}" />
-                    <Setter Property="Canvas.Top" Value="{Binding Position.Value.Y}" />
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Button Command="{Binding MaxSpeed}">
-                        <Button.Template>
-                            <ControlTemplate TargetType="{x:Type Button}">
-                                <Ellipse Fill="Red" Width="25" Height="25" />
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <Viewbox Grid.Column="0" >
+            <ItemsControl ItemsSource="{Binding Simulation.World.Population}" 
+                          Width="{Binding Simulation.World.Width.Value}" Height="{Binding Simulation.World.Height.Value}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="{x:Type ContentPresenter}">
+                        <Setter Property="Canvas.Left" Value="{Binding Position.Value.X}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Position.Value.Y}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Path=Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
+                               Width="{Binding ElementName=slWidth, Path=Value}" Height="{Binding ElementName=slHeight, Path=Value}">
+                            <Image.RenderTransform>
+                                <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
+                            </Image.RenderTransform>
+                        </Image>
+                        <!--<Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" Width="{Binding ElementName=slWidth, Path=Value}" Height="{Binding ElementName=slHeight, Path=Value}">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>-->
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Viewbox>
 
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-        
+
         <Grid Grid.Column="2">
-            <TextBlock TextWrapping="Wrap" Text="{Binding Simulation.World.Width.Value}"/>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" HorizontalAlignment="Center" 
+                           TextDecorations="Underline" FontWeight="Bold" FontSize="32" Text="Simulation Settings"/>
+                <TabControl Margin="0,20,0,0" VerticalAlignment="Stretch" Background="LightGray">
+                    <TabControl.Resources>
+                        <Style TargetType="{x:Type DockPanel}">
+                            <Setter Property="Margin" Value="5,10,15,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type Label}">
+                            <Setter Property="FontSize" Value="16"/>
+                            <Setter Property="Margin" Value="15,10,0,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type Slider}">
+                            <Setter Property="Margin" Value="10,0,10,0"/>
+                        </Style>
+                        <Style TargetType="TabItem">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TabItem">
+                                        <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Gainsboro" CornerRadius="4,4,0,0" Margin="2,0">
+                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="28,2"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Border" Property="Background" Value="Darkgray" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="Border" Property="Background" Value="GhostWhite" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TabControl.Resources>
+                    <TabItem Header="World">
+                        <ScrollViewer>
+                            <StackPanel>
+                                <Label>Boid Height</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=slHeight, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="300" Minimum="10" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slHeight"/>
+                                </DockPanel>
+                                <Label>Boid Width</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=slWidth, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="300" Minimum="10" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slWidth"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Species">
+                        <ScrollViewer>
+                            <StackPanel>
+                                <ComboBox ItemsSource="{Binding Simulation.Species}" 
+                                          SelectedItem="{Binding Simulation.SelectedSpecie, Mode=TwoWay}" 
+                                          IsSynchronizedWithCurrentItem="True">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=Name}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <ItemsControl ItemsSource="{Binding Simulation.SelectedSpecie.Parameters}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <ContentControl Content="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
         </Grid>
     </Grid>
 </Window>

@@ -5,7 +5,10 @@ using Model;
 using Model.AI;
 using Model.Species;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -93,21 +96,53 @@ namespace ViewModel
         }
     }
 
-    public class SimulationViewModel
+    public class SimulationViewModel : INotifyPropertyChanged
     {
         private readonly Simulation simulation;
 
         public SimulationViewModel(Simulation simulation)
         {
             this.simulation = simulation;
+            this.Species = simulation.Species.Select(x => new SpeciesViewModel(x)).ToList();
+            this.SelectedSpecie = Species.FirstOrDefault();
         }
 
         private World world => simulation.World;
 
         public WorldViewModel World => new WorldViewModel(world);
+
+        private SpeciesViewModel _selectedSpecie;
+        public SpeciesViewModel SelectedSpecie
+        {
+            get
+            {
+                return _selectedSpecie;
+            }
+            set
+            {
+                _selectedSpecie = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedSpecie)));
+            }
+        }
+
+        private IEnumerable<SpeciesViewModel> _species;
+        public IEnumerable<SpeciesViewModel> Species
+        {
+            get
+            {
+                return _species;
+            }
+            set
+            {
+                _species = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Species)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    public class WorldViewModel
+    public class WorldViewModel : INotifyPropertyChanged
     {
         private readonly World world;
 
@@ -122,7 +157,7 @@ namespace ViewModel
 
         private ObservableCollection<Boid> population => world.Population;
 
-        private  ObservableCollection<BoidViewModel> _population;
+        private ObservableCollection<BoidViewModel> _population;
         public ObservableCollection<BoidViewModel> Population
         {
             get { return _population; }
@@ -132,16 +167,56 @@ namespace ViewModel
                     return;
 
                 _population = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Population)));
             }
         }
 
         private ParameterBindings bindings => world.Bindings;
-
         public Cell<double> Width => bindings.Read(World.Width);
         public Cell<double> Height => bindings.Read(World.Height);
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 
-    public class BoidViewModel
+    public class SpeciesViewModel : INotifyPropertyChanged
+    {
+        private readonly BoidSpecies specie;
+
+        public SpeciesViewModel(BoidSpecies specie)
+        {
+            this.specie = specie;
+
+            Parameters = new ObservableCollection<RangedParamViewModel>();
+            foreach (IParameter param in Bindings.Parameters)
+            {
+                if (param is RangedDoubleParameter)
+                {
+                    Parameters.Add(new RangedParamViewModel(Bindings, (RangedDoubleParameter)param));
+                }
+            }
+        }
+
+        public String Name => specie.Name;
+        public ParameterBindings Bindings => specie.Bindings;
+
+        private ObservableCollection<RangedParamViewModel> _parameters;
+        public ObservableCollection<RangedParamViewModel> Parameters
+        {
+            get { return _parameters; }
+            set
+            {
+                if (value == _parameters)
+                    return;
+
+                _parameters = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Parameters)));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    public class BoidViewModel 
     {
         private readonly Boid boid;
 
@@ -156,44 +231,22 @@ namespace ViewModel
         public Cell<Vector2D> Velocity => boid.Velocity;
         public BoidSpecies Species => boid.Species;
         public IArtificialIntelligence AI => boid.AI;
+    }
 
-        public Cell<double> MaximumSpeed => Bindings.Read(BoidSpecies.MaximumSpeed);
+    public class RangedParamViewModel
+    {
+        private readonly RangedDoubleParameter param;
+        private readonly ParameterBindings bindings;
 
-        public void SetMaximumSpeed()
+        public RangedParamViewModel(ParameterBindings bindings, RangedDoubleParameter param)
         {
-            MaximumSpeed.Value = BoidSpecies.MaximumSpeed.Maximum;
+            this.param = param;
+            this.bindings = bindings;
         }
 
-        private ICommand _maxSpeed;
-        public ICommand MaxSpeed
-        {
-            get
-            {
-                return _maxSpeed ?? (_maxSpeed = new CommandHandler(() => SetMaximumSpeed(), true));
-            }
-        }
-
-        public class CommandHandler : ICommand
-        {
-            private Action _action;
-            private bool _canExecute;
-            public CommandHandler(Action action, bool canExecute)
-            {
-                _action = action;
-                _canExecute = canExecute;
-            }
-
-            public bool CanExecute(object parameter)
-            {
-                return _canExecute;
-            }
-
-            public event EventHandler CanExecuteChanged;
-
-            public void Execute(object parameter)
-            {
-                _action();
-            }
-        }
+        public String Label => this.param.Id;
+        public Cell<double> Current => bindings.Read(this.param);
+        public double Minimum => param.Minimum;
+        public double Maximum => param.Maximum;
     }
 }
