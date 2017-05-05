@@ -18,6 +18,7 @@
         <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter" />
         <local:_2DVectorToAngleConverter x:Key="_2DVectorToAngleConverter"/>
         <local:BoidSizeToMarginConverter x:Key="BoidSizeToMarginConverter"/>
+        <local:CalculateWorldSizeConverter x:Key="CalculateWorldSizeConverter"/>
 
         <!--Prey and HunterPopulation collections.-->
         <CollectionViewSource x:Key="Hunters" Source="{Binding Simulation.World.HunterPopulation}"/>
@@ -35,22 +36,35 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="10*" MinWidth="300" MaxWidth="600"/>
         </Grid.ColumnDefinitions>
-        <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" >
-            <ItemsControl ItemsSource="{StaticResource BoidPopulation}" HorizontalAlignment="Left" VerticalAlignment="Top"
-                          Margin="{Binding ElementName=slHunter, Path=Value, Converter={StaticResource BoidSizeToMarginConverter}}"
-                          Width="{Binding Simulation.World.Width.Value}" Height="{Binding Simulation.World.Height.Value}">
-                <ItemsControl.ItemsPanel>
+        <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
+            <ListBox Name="worldCanvas" ItemsSource="{StaticResource BoidPopulation}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                          BorderThickness="0" Background="LightGray">
+                <ListBox.Width>
+                    <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
+                        <Binding Path="Simulation.World.Width.Value"/>
+                        <Binding ElementName="slHunter" Path="Value"/>
+                        <Binding ElementName="slPrey" Path="Value"/>
+                    </MultiBinding>
+                </ListBox.Width>
+                <ListBox.Height>
+                    <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
+                        <Binding Path="Simulation.World.Height.Value"/>
+                        <Binding ElementName="slHunter" Path="Value"/>
+                        <Binding ElementName="slPrey" Path="Value"/>
+                    </MultiBinding>
+                </ListBox.Height>
+                <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas/>
                     </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type ContentPresenter}">
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="Canvas.Left" Value="{Binding Position.Value.X}" />
                         <Setter Property="Canvas.Top" Value="{Binding Position.Value.Y}" />
                     </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemTemplate>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Path=Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
                                Width="{Binding ElementName=slHunter, Path=Value}" Height="{Binding ElementName=slHunter, Path=Value}">
@@ -64,8 +78,8 @@
                             </Ellipse.RenderTransform>
                         </Ellipse>-->
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Viewbox>
 
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>

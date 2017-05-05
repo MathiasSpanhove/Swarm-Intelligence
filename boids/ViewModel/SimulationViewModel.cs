@@ -74,6 +74,17 @@ namespace ViewModel
 
         private ObservableCollection<Boid> population => world.Population;
 
+        private SpeciesViewModel _selectedHunter;
+        public SpeciesViewModel SelectedHunter
+        {
+            get { return _selectedHunter; }
+            set
+            {
+                _selectedHunter = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedHunter)));
+            }
+        }
+
         private ObservableCollection<BoidViewModel> _hunterPopulation;
         public ObservableCollection<BoidViewModel> HunterPopulation
         {
@@ -85,6 +96,17 @@ namespace ViewModel
 
                 _hunterPopulation = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HunterPopulation)));
+            }
+        }
+
+        private SpeciesViewModel _selectedPrey;
+        public SpeciesViewModel SelectedPrey
+        {
+            get { return _selectedPrey; }
+            set
+            {
+                _selectedPrey = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedPrey)));
             }
         }
 

@@ -79,6 +79,7 @@
     </ApplicationDefinition>
     <Compile Include="2DVectorToAngleConverter.cs" />
     <Compile Include="BoidSizeToMarginConverter.cs" />
+    <Compile Include="CalculateWorldSizeConverter.cs" />
     <Compile Include="RangeToTickConverter.cs" />
     <Compile Include="Slider.xaml.cs">
       <DependentUpon>Slider.xaml</DependentUpon>
