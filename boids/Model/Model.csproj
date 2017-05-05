@@ -44,6 +44,7 @@
     <Compile Include="AI\IArtificialIntelligence.cs" />
     <Compile Include="Boid.cs" />
     <Compile Include="Forces\BoidAttractionForce.cs" />
+    <Compile Include="Forces\FlockForce.cs" />
     <Compile Include="Forces\IForce.cs" />
     <Compile Include="Forces\WallForce.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

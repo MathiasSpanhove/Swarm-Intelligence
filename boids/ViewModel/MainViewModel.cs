@@ -1,41 +1,29 @@
-﻿using Bindings;
-using Cells;
-using Mathematics;
+﻿using Mathematics;
+using Microsoft.Practices.ServiceLocation;
 using Model;
-using Model.AI;
-using Model.Species;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Input;
-using System.Windows.Threading;
+using Timer.Interfaces;
 
 namespace ViewModel
 {
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
         public MainViewModel()
         {
-            _dispatcher = Dispatcher.CurrentDispatcher;
-
             this.simulation = new Simulation();
             this.Simulation = new SimulationViewModel(this.simulation);
-            CreateHunter(50, 50);
-            CreatePrey(150, 150);
-            CreatePrey(20, 20);
+            this.startupBoids();
 
-            this.timer = new DispatcherTimer(TimeSpan.FromMilliseconds(20), DispatcherPriority.Render, (x, y) =>
-            {
-                Update(0.02);
-            }, _dispatcher);
-
-            timer.Start();
+            this.TickMilliseconds = 20;
+            this.SpeedUpMultiplier = 1.0;
+            _timer = ServiceLocator.Current.GetInstance<ITimerService>();
+            _timer.Tick += Timer_Tick;
+            _timer.Start(new TimeSpan(0, 0, 0, 0, TickMilliseconds));
         }
 
-        private readonly Dispatcher _dispatcher;
-        private DispatcherTimer timer;
+        // Simulation
 
         private Simulation simulation;
 
@@ -51,12 +39,48 @@ namespace ViewModel
             this.simulation.Species[1].CreateBoid(new Vector2D(x, y));
         }
 
+        private void startupBoids()
+        {
+            CreateHunter(50, 50);
+            CreateHunter(200, 200);
+            for (var i = 0; i < 25; i++)
+            {
+                CreatePrey(150, 150);
+            }
+        }
+
+        public void Update(double dt)
+        {
+            this.simulation.Update(dt);
+        }
+
+        // Timer
+
+        private ITimerService _timer;
+        public int TickMilliseconds { get; set; }
+
+        private double _speedUpMultiplier;
+        public double SpeedUpMultiplier
+        {
+            get { return _speedUpMultiplier; }
+            set
+            {
+                if (value == _speedUpMultiplier)
+                    return;
+
+                _speedUpMultiplier = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SpeedUpMultiplier)));
+            }
+        }
+
+        private void Timer_Tick(ITimerService obj)
+        {
+            Update(Convert.ToDouble(TickMilliseconds)/1000 * SpeedUpMultiplier);
+        }
+
         public void ToggleTimer()
         {
-            if (this.timer.IsEnabled)
-                this.timer.Stop();
-            else
-                this.timer.Start();
+            _timer.ToggleOnOff();                
         }
 
         private ICommand _pause;
@@ -91,155 +115,6 @@ namespace ViewModel
             }
         }
 
-        public void Update(double dt)
-        {
-            this.simulation.Update(dt);
-        }
-    }
-
-    public class SimulationViewModel : INotifyPropertyChanged {
-        private readonly Simulation simulation;
-
-        public SimulationViewModel(Simulation simulation)
-        {
-            this.simulation = simulation;
-            this.Species = simulation.Species.Select(x => new SpeciesViewModel(x)).ToList();
-            this.SelectedSpecie = Species.FirstOrDefault();
-        }
-
-        private World world => simulation.World;
-        public WorldViewModel World => new WorldViewModel(world);
-
-        private SpeciesViewModel _selectedSpecie;
-        public SpeciesViewModel SelectedSpecie
-        {
-            get { return _selectedSpecie; }
-            set
-            {
-                _selectedSpecie = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedSpecie)));
-            }
-        }
-
-        private IEnumerable<SpeciesViewModel> _species;
-        public IEnumerable<SpeciesViewModel> Species
-        {
-            get { return _species; }
-            set
-            {
-                _species = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Species)));
-            }
-        }
-
         public event PropertyChangedEventHandler PropertyChanged;
-    }
-
-    public class WorldViewModel : INotifyPropertyChanged
-    {
-        private readonly World world;
-
-        public WorldViewModel(World world)
-        {
-            this.world = world;
-
-            Population = new ObservableCollection<BoidViewModel>();
-            foreach (Boid boid in population)
-                Population.Add(new BoidViewModel(boid));
-        }
-
-        private ObservableCollection<Boid> population => world.Population;
-
-        private ObservableCollection<BoidViewModel> _population;
-        public ObservableCollection<BoidViewModel> Population
-        {
-            get { return _population; }
-            set
-            {
-                if (value == _population)
-                    return;
-
-                _population = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Population)));
-            }
-        }
-
-        private ParameterBindings bindings => world.Bindings;
-        public Cell<double> Width => bindings.Read(World.Width);
-        public Cell<double> Height => bindings.Read(World.Height);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-    }
-
-    public class SpeciesViewModel : INotifyPropertyChanged
-    {
-        private readonly BoidSpecies specie;
-
-        public SpeciesViewModel(BoidSpecies specie)
-        {
-            this.specie = specie;
-
-            Parameters = new ObservableCollection<RangedParamViewModel>();
-            foreach (IParameter param in Bindings.Parameters)
-            {
-                if (param is RangedDoubleParameter)
-                {
-                    Parameters.Add(new RangedParamViewModel(Bindings, (RangedDoubleParameter)param));
-                }
-            }
-        }
-
-        public String Name => specie.Name;
-        public ParameterBindings Bindings => specie.Bindings;
-
-        private ObservableCollection<RangedParamViewModel> _parameters;
-        public ObservableCollection<RangedParamViewModel> Parameters
-        {
-            get { return _parameters; }
-            set
-            {
-                if (value == _parameters)
-                    return;
-
-                _parameters = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Parameters)));
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-    }
-
-    public class BoidViewModel 
-    {
-        private readonly Boid boid;
-
-        public BoidViewModel(Boid boid)
-        {
-            this.boid = boid;
-        }
-
-        public ParameterBindings Bindings => boid.Bindings;
-        public World World => boid.World;
-        public Cell<Vector2D> Position => boid.Position;
-        public Cell<Vector2D> Velocity => boid.Velocity;
-        public BoidSpecies Species => boid.Species;
-        public IArtificialIntelligence AI => boid.AI;
-    }
-
-    public class RangedParamViewModel
-    {
-        private readonly RangedDoubleParameter param;
-        private readonly ParameterBindings bindings;
-
-        public RangedParamViewModel(ParameterBindings bindings, RangedDoubleParameter param)
-        {
-            this.param = param;
-            this.bindings = bindings;
-        }
-
-        public String Label => this.param.Id;
-        public Cell<double> Current => bindings.Read(this.param);
-        public double Minimum => param.Minimum;
-        public double Maximum => param.Maximum;
     }
 }

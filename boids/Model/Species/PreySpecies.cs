@@ -22,6 +22,20 @@ namespace Model.Species
 
         public static Parameter<string> EnemySpecies = new Parameter<string>("Repulsive Species", "hunter");
 
+        // created
+
+        public static RangedDoubleParameter FlockExponent = new RangedDoubleParameter("Flock Exponent", defaultValue: 0, minimum: 0, maximum: 0.1);
+
+        public static RangedDoubleParameter FlockSightDistance = new RangedDoubleParameter("Flock Sight Distance", defaultValue: 500, minimum: 1, maximum: 1000);
+
+        public static RangedDoubleParameter FlockSpaceDistance = new RangedDoubleParameter("Flock Space Distance", defaultValue: 200, minimum: 1, maximum: 1000);
+
+        public static RangedDoubleParameter FlockSpaceExponent = new RangedDoubleParameter("Flock Space Exponent", defaultValue: 0, minimum: 0, maximum: 1);
+
+        public static RangedDoubleParameter FlockAlignExponent = new RangedDoubleParameter("Flock Align Exponent", defaultValue: 0, minimum: 0, maximum: 1);
+
+        public static Parameter<string> FlockSpecies = new Parameter<string>("Flock Species", "prey");
+
         public PreySpecies(World world)
             : base(world, "prey")
         {
@@ -30,7 +44,13 @@ namespace Model.Species
                 .Initialize(HunterAttractionExponent)
                 .Initialize(WallRepulsionConstant)
                 .Initialize(WallRepulsionExponent)
-                .Initialize(EnemySpecies);
+                .Initialize(EnemySpecies)
+                .Initialize(FlockExponent)
+                .Initialize(FlockSightDistance)
+                .Initialize(FlockSpaceDistance)
+                .Initialize(FlockSpaceExponent)
+                .Initialize(FlockAlignExponent)
+                .Initialize(FlockSpecies);
         }
 
         internal override IArtificialIntelligence CreateAI(Boid boid)
@@ -44,19 +64,24 @@ namespace Model.Species
 
             private readonly IForce wallForce;
 
+            private readonly IForce flockForce;
+
             public ArtificialIntelligence(World world, Boid self)
                 : base(world, self)
             {
                 enemyForce = new BoidAttractionForce(HunterAttractionConstant, HunterAttractionExponent, EnemySpecies);
                 wallForce = new WallForce(WallRepulsionConstant, WallRepulsionExponent);
+                flockForce = new FlockForce(FlockSpaceDistance, FlockSightDistance, FlockSpaceExponent, FlockExponent, FlockAlignExponent, FlockSpecies);
             }
 
             public override Vector2D ComputeAcceleration()
             {
                 var total = new Vector2D(0, 0);
 
+                total += flockForce.Compute(this.self.Bindings, this.world, this.self);
                 total += enemyForce.Compute(this.self.Bindings, this.world, this.self);
                 total += wallForce.Compute(this.self.Bindings, this.world, this.self);
+                
 
                 return total;
             }

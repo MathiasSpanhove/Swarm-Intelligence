@@ -13,9 +13,21 @@
         <KeyBinding Key="Space" Command="{Binding Pause}"/>
     </Window.InputBindings>
     <Window.Resources>
+        <!--Converters-->
         <local:SpeciesToColorConverter x:Key="SpeciesToColorConverter" />
         <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter" />
         <local:_2DVectorToAngleConverter x:Key="_2DVectorToAngleConverter"/>
+        <local:BoidSizeToMarginConverter x:Key="BoidSizeToMarginConverter"/>
+
+        <!--Prey and HunterPopulation collections.-->
+        <CollectionViewSource x:Key="Hunters" Source="{Binding Simulation.World.HunterPopulation}"/>
+        <CollectionViewSource x:Key="Prey" Source="{Binding Simulation.World.PreyPopulation}"/>
+
+        <!--Combine the collection views into a single composite collection-->
+        <CompositeCollection x:Key="BoidPopulation">
+            <CollectionContainer Collection="{Binding Source={StaticResource Hunters}}" />
+            <CollectionContainer Collection="{Binding Source={StaticResource Prey}}" />
+        </CompositeCollection>
     </Window.Resources>
     <Grid Background="LightGray">
         <Grid.ColumnDefinitions>
@@ -23,8 +35,9 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="10*" MinWidth="300" MaxWidth="600"/>
         </Grid.ColumnDefinitions>
-        <Viewbox Grid.Column="0" >
-            <ItemsControl ItemsSource="{Binding Simulation.World.Population}" 
+        <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0" >
+            <ItemsControl ItemsSource="{StaticResource BoidPopulation}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                          Margin="{Binding ElementName=slHunter, Path=Value, Converter={StaticResource BoidSizeToMarginConverter}}"
                           Width="{Binding Simulation.World.Width.Value}" Height="{Binding Simulation.World.Height.Value}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -40,7 +53,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Path=Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
-                               Width="{Binding ElementName=slWidth, Path=Value}" Height="{Binding ElementName=slHeight, Path=Value}">
+                               Width="{Binding ElementName=slHunter, Path=Value}" Height="{Binding ElementName=slHunter, Path=Value}">
                             <Image.RenderTransform>
                                 <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                             </Image.RenderTransform>
@@ -98,17 +111,23 @@
                     <TabItem Header="World">
                         <ScrollViewer>
                             <StackPanel>
-                                <Label>Boid Height</Label>
+                                <Label>Hunter Size</Label>
                                 <DockPanel>
-                                    <TextBox Text="{Binding ElementName=slHeight, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                    <TextBox Text="{Binding ElementName=slHunter, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    <Slider Value="300" Minimum="10" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slHeight"/>
+                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slHunter"/>
                                 </DockPanel>
-                                <Label>Boid Width</Label>
+                                <Label>Prey Size</Label>
                                 <DockPanel>
-                                    <TextBox Text="{Binding ElementName=slWidth, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                    <TextBox Text="{Binding ElementName=slPrey, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    <Slider Value="300" Minimum="10" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slWidth"/>
+                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slPrey"/>
+                                </DockPanel>
+                                <Label>Speedup Animation</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="{Binding SpeedUpMultiplier}" Minimum="0.1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="True" Name="speedup"/>
                                 </DockPanel>
                             </StackPanel>
                         </ScrollViewer>
@@ -117,7 +136,7 @@
                         <ScrollViewer>
                             <StackPanel>
                                 <ComboBox ItemsSource="{Binding Simulation.Species}" 
-                                          SelectedItem="{Binding Simulation.SelectedSpecie}" 
+                                          SelectedItem="{Binding Simulation.SelectedSpecies}" 
                                           IsSynchronizedWithCurrentItem="True">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
@@ -125,7 +144,7 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <ContentPresenter Content="{Binding Simulation.SelectedSpecie}">
+                                <ContentPresenter Content="{Binding Simulation.SelectedSpecies}">
                                     <ContentPresenter.ContentTemplate>
                                         <DataTemplate>
                                             <ItemsControl ItemsSource="{Binding Parameters}" >
