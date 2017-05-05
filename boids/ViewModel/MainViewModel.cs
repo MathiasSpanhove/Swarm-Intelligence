@@ -21,6 +21,7 @@ namespace ViewModel
             _dispatcher = Dispatcher.CurrentDispatcher;
 
             this.simulation = new Simulation();
+            this.Simulation = new SimulationViewModel(this.simulation);
             CreateHunter(50, 50);
             CreatePrey(150, 150);
             CreatePrey(20, 20);
@@ -38,7 +39,7 @@ namespace ViewModel
 
         private Simulation simulation;
 
-        public SimulationViewModel Simulation => new SimulationViewModel(this.simulation);
+        public SimulationViewModel Simulation { get; }
 
         private void CreateHunter(double x, double y)
         {
