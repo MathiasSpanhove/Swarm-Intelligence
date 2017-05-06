@@ -14,11 +14,12 @@
     </Window.InputBindings>
     <Window.Resources>
         <!--Converters-->
-        <local:SpeciesToColorConverter x:Key="SpeciesToColorConverter" />
-        <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter" />
+        <local:SpeciesToColorConverter x:Key="SpeciesToColorConverter"/>
+        <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter"/>
         <local:_2DVectorToAngleConverter x:Key="_2DVectorToAngleConverter"/>
         <local:BoidSizeToMarginConverter x:Key="BoidSizeToMarginConverter"/>
         <local:CalculateWorldSizeConverter x:Key="CalculateWorldSizeConverter"/>
+        <local:RgbConverter x:Key="RgbConverter"/>
 
         <!--Prey and HunterPopulation collections.-->
         <CollectionViewSource x:Key="Hunters" Source="{Binding Simulation.World.HunterPopulation}"/>
@@ -29,8 +30,22 @@
             <CollectionContainer Collection="{Binding Source={StaticResource Hunters}}" />
             <CollectionContainer Collection="{Binding Source={StaticResource Prey}}" />
         </CompositeCollection>
+        
+        <!--Background brush-->
+        <SolidColorBrush x:Key="BackgroundBrush">
+            <SolidColorBrush.Color>
+                <MultiBinding Converter="{StaticResource RgbConverter}">
+                    <Binding Path="Value" ElementName="redSlider" />
+                    <Binding Path="Value" ElementName="greenSlider" />
+                    <Binding Path="Value" ElementName="blueSlider" />
+                </MultiBinding>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
     </Window.Resources>
-    <Grid Background="LightGray">
+    <Grid x:Name="Wrapper">
+        <Grid.Background>
+            <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
+        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="30*"/>
             <ColumnDefinition Width="auto"/>
@@ -38,7 +53,10 @@
         </Grid.ColumnDefinitions>
         <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
             <ListBox Name="worldCanvas" ItemsSource="{StaticResource BoidPopulation}" HorizontalAlignment="Left" VerticalAlignment="Top"
-                          BorderThickness="0" Background="LightGray">
+                          BorderThickness="0">
+                <ListBox.Background>
+                    <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
+                </ListBox.Background>
                 <ListBox.Width>
                     <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
                         <Binding Path="Simulation.World.Width.Value"/>
@@ -85,10 +103,13 @@
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
 
         <Grid Grid.Column="2">
-            <DockPanel>
+            <DockPanel x:Name="SettingsPanel">
                 <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" HorizontalAlignment="Center" 
                            TextDecorations="Underline" FontWeight="Bold" FontSize="32" Text="Simulation Settings"/>
-                <TabControl Margin="0,20,0,0" VerticalAlignment="Stretch" Background="LightGray">
+                <TabControl Margin="0,20,0,0" VerticalAlignment="Stretch">
+                    <TabControl.Background>
+                        <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
+                    </TabControl.Background>
                     <TabControl.Resources>
                         <Style TargetType="{x:Type DockPanel}">
                             <Setter Property="Margin" Value="5,10,15,0"/>
@@ -99,6 +120,12 @@
                         </Style>
                         <Style TargetType="{x:Type Slider}">
                             <Setter Property="Margin" Value="10,0,10,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type Rectangle}">
+                            <Setter Property="Margin" Value="10,30,10,0"/>
+                            <Setter Property="Height" Value="2"/>
+                            <Setter Property="Width" Value="{Binding ElementName=SettingsPanel, Path=Width.Value}"/>
+                            <Setter Property="Fill" Value="DarkGray"/>
                         </Style>
                         <Style TargetType="TabItem">
                             <Setter Property="Template">
@@ -137,11 +164,32 @@
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slPrey"/>
                                 </DockPanel>
+                                <Rectangle/>
                                 <Label>Speedup Animation</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="{Binding SpeedUpMultiplier}" Minimum="0.1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="True" Name="speedup"/>
+                                </DockPanel>
+                                <Rectangle/>
+                                <Label FontSize="20" FontWeight="Bold">Background Color</Label>
+                                <Label>Parameter Red</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=redSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="redSlider"/>
+                                </DockPanel>
+                                <Label>Parameter Green</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=greenSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="greenSlider"/>
+                                </DockPanel>
+                                <Label>Parameter Blue</Label>
+                                <DockPanel>
+                                    <TextBox Text="{Binding ElementName=blueSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                    <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="blueSlider"/>
                                 </DockPanel>
                             </StackPanel>
                         </ScrollViewer>

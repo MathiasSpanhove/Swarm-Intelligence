@@ -19,11 +19,17 @@ namespace Model.Species
 
         public static RangedDoubleParameter Elasticity = new RangedDoubleParameter("Elasticity", defaultValue: 0.25, minimum: 0, maximum: 1);
 
+        public static RangedDoubleParameter Sight = new RangedDoubleParameter("Sight", defaultValue: 1500, minimum: 100, maximum: 1500);
+
         protected BoidSpecies(World world, string name)
         {
             this.World = world;
             this.Name = name;
-            this.Bindings = new ParameterBindings("Species", world.Bindings).Initialize(MaximumSpeed).Initialize(MaximumAcceleration).Initialize(Elasticity);
+            this.Bindings = new ParameterBindings("Species", world.Bindings)
+                .Initialize(MaximumSpeed)
+                .Initialize(MaximumAcceleration)
+                .Initialize(Elasticity)
+                .Initialize(Sight);
         }
 
         public World World { get; }

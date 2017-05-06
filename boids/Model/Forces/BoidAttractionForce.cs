@@ -1,5 +1,6 @@
 ﻿using Bindings;
 using Mathematics;
+using Model.Species;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Model.Forces
 
         public Vector2D Compute(IParameterBindings bindings, World world, Boid self)
         {
+            var sight = bindings.Read(BoidSpecies.Sight).Value;
             var constant = bindings.Read(this.constant).Value;
             var exponent = bindings.Read(this.exponent).Value;
             var species = bindings.Read(this.species).Value;
@@ -36,9 +38,11 @@ namespace Model.Forces
                 {
                     var selfToBoid = boid.Position.Value - self.Position.Value;
                     var distance = selfToBoid.Norm;
-                    var result = constant * selfToBoid / Math.Pow(distance, exponent);
-
-                    total += result;
+                    if (distance < sight)
+                    {
+                        var result = constant * selfToBoid / Math.Pow(distance, exponent);
+                        total += result;
+                    }
                 }
             }
 
