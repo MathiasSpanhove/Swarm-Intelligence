@@ -14,10 +14,9 @@ namespace View
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             double world = (double)values[0];
-            double hunter = (double)values[1];
-            double prey = (double)values[2];
+            double boid = (double)values[1];
 
-            return (hunter > prey) ? hunter + world : prey + world;
+            return boid + world;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

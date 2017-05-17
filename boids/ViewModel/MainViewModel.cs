@@ -1,6 +1,7 @@
 ﻿using Mathematics;
 using Microsoft.Practices.ServiceLocation;
 using Model;
+using Model.Species;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -45,13 +46,52 @@ namespace ViewModel
             CreateHunter(200, 200);
             for (var i = 0; i < 25; i++)
             {
-                CreatePrey(150, 150);
+                CreatePrey(150+i, 150+i);
             }
         }
 
         public void Update(double dt)
         {
             this.simulation.Update(dt);
+        }
+
+        private ICommand _addBoid;
+        public ICommand AddBoid
+        {
+            get
+            {
+                return _addBoid ?? (_addBoid = new CommandParameterHandler((parameter) => CreateBoid((BoidSpecies)parameter), true));
+            }
+        }
+
+        private ICommand _removeBoid;
+        public ICommand RemoveBoid
+        {
+            get
+            {
+                return _removeBoid ?? (_removeBoid = new CommandParameterHandler((parameter) => DeleteBoid((BoidSpecies)parameter), true));
+            }
+        }
+
+        private void CreateBoid(BoidSpecies specie)
+        {
+            int index = this.simulation.Species.IndexOf(specie);
+            Random rnd = new Random();
+            double x = rnd.Next(1, (int) Simulation.World.Width.Value);
+            double y = rnd.Next(1, (int) Simulation.World.Height.Value);
+            this.simulation.Species[index].CreateBoid(new Vector2D(x, y));
+        }
+
+        private void DeleteBoid(BoidSpecies specie)
+        {
+            foreach(Boid boid in this.simulation.World.Population)
+            {
+                if (boid.Species == specie)
+                {
+                    this.simulation.World.Population.Remove(boid);
+                    break;
+                }
+            }
         }
 
         // Timer
@@ -112,6 +152,29 @@ namespace ViewModel
             public void Execute(object parameter)
             {
                 _action();
+            }
+        }
+
+        public class CommandParameterHandler : ICommand
+        {
+            private Action<object> _action;
+            private bool _canExecute;
+            public CommandParameterHandler(Action<object> action, bool canExecute)
+            {
+                _action = action;
+                _canExecute = canExecute;
+            }
+
+            public bool CanExecute(object parameter)
+            {
+                return _canExecute;
+            }
+
+            public event EventHandler CanExecuteChanged;
+
+            public void Execute(object parameter)
+            {
+                _action(parameter);
             }
         }
 

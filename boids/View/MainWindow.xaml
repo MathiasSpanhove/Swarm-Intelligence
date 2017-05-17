@@ -8,9 +8,10 @@
         mc:Ignorable="d"
         Title="Swarm Intelligence (Boids)" Height="1000" Width="1800"
         Name="window"
-        FocusManager.FocusedElement="{Binding ElementName=window}">
+        FocusManager.FocusedElement="{Binding ElementName=window}"
+        KeyDown="window_KeyDown">
     <Window.InputBindings>
-        <KeyBinding Key="Space" Command="{Binding Pause}"/>
+        <KeyBinding Key="Pause" Command="{Binding Pause}"/>
     </Window.InputBindings>
     <Window.Resources>
         <!--Converters-->
@@ -21,16 +22,6 @@
         <local:CalculateWorldSizeConverter x:Key="CalculateWorldSizeConverter"/>
         <local:RgbConverter x:Key="RgbConverter"/>
 
-        <!--Prey and HunterPopulation collections.-->
-        <CollectionViewSource x:Key="Hunters" Source="{Binding Simulation.World.HunterPopulation}"/>
-        <CollectionViewSource x:Key="Prey" Source="{Binding Simulation.World.PreyPopulation}"/>
-
-        <!--Combine the collection views into a single composite collection-->
-        <CompositeCollection x:Key="BoidPopulation">
-            <CollectionContainer Collection="{Binding Source={StaticResource Hunters}}" />
-            <CollectionContainer Collection="{Binding Source={StaticResource Prey}}" />
-        </CompositeCollection>
-        
         <!--Background brush-->
         <SolidColorBrush x:Key="BackgroundBrush">
             <SolidColorBrush.Color>
@@ -52,7 +43,7 @@
             <ColumnDefinition Width="10*" MinWidth="300" MaxWidth="600"/>
         </Grid.ColumnDefinitions>
         <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
-            <ListBox Name="worldCanvas" ItemsSource="{StaticResource BoidPopulation}" HorizontalAlignment="Left" VerticalAlignment="Top"
+            <ListBox Name="worldCanvas" ItemsSource="{Binding Simulation.World.Population}" HorizontalAlignment="Left" VerticalAlignment="Top"
                           BorderThickness="0">
                 <ListBox.Background>
                     <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
@@ -60,15 +51,13 @@
                 <ListBox.Width>
                     <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
                         <Binding Path="Simulation.World.Width.Value"/>
-                        <Binding ElementName="slHunter" Path="Value"/>
-                        <Binding ElementName="slPrey" Path="Value"/>
+                        <Binding ElementName="slBoidSize" Path="Value"/>
                     </MultiBinding>
                 </ListBox.Width>
                 <ListBox.Height>
                     <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
                         <Binding Path="Simulation.World.Height.Value"/>
-                        <Binding ElementName="slHunter" Path="Value"/>
-                        <Binding ElementName="slPrey" Path="Value"/>
+                        <Binding ElementName="slBoidSize" Path="Value"/>
                     </MultiBinding>
                 </ListBox.Height>
                 <ListBox.ItemsPanel>
@@ -85,12 +74,12 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Path=Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
-                               Width="{Binding ElementName=slHunter, Path=Value}" Height="{Binding ElementName=slHunter, Path=Value}">
+                               Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                             <Image.RenderTransform>
                                 <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                             </Image.RenderTransform>
                         </Image>
-                        <!--<Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" Width="{Binding ElementName=slWidth, Path=Value}" Height="{Binding ElementName=slHeight, Path=Value}">
+                        <!--<Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                             <Ellipse.RenderTransform>
                                 <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                             </Ellipse.RenderTransform>
@@ -121,11 +110,8 @@
                         <Style TargetType="{x:Type Slider}">
                             <Setter Property="Margin" Value="10,0,10,0"/>
                         </Style>
-                        <Style TargetType="{x:Type Rectangle}">
+                        <Style TargetType="{x:Type Separator}">
                             <Setter Property="Margin" Value="10,30,10,0"/>
-                            <Setter Property="Height" Value="2"/>
-                            <Setter Property="Width" Value="{Binding ElementName=SettingsPanel, Path=Width.Value}"/>
-                            <Setter Property="Fill" Value="DarkGray"/>
                         </Style>
                         <Style TargetType="TabItem">
                             <Setter Property="Template">
@@ -150,52 +136,80 @@
                         </Style>
                     </TabControl.Resources>
                     <TabItem Header="World">
-                        <ScrollViewer>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
-                                <Label>Hunter Size</Label>
+                                <Label>Boid Size</Label>
                                 <DockPanel>
-                                    <TextBox Text="{Binding ElementName=slHunter, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                    <TextBox Text="{Binding ElementName=slBoidSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slHunter"/>
+                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slBoidSize"/>
                                 </DockPanel>
-                                <Label>Prey Size</Label>
-                                <DockPanel>
-                                    <TextBox Text="{Binding ElementName=slPrey, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slPrey"/>
-                                </DockPanel>
-                                <Rectangle/>
-                                <Label>Speedup Animation</Label>
+                                <Separator/>
+                                <Label>Simulation Speed</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="{Binding SpeedUpMultiplier}" Minimum="0.1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="True" Name="speedup"/>
                                 </DockPanel>
-                                <Rectangle/>
+                                <Separator/>
                                 <Label FontSize="20" FontWeight="Bold">Background Color</Label>
-                                <Label>Parameter Red</Label>
+                                <Label>Red</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=redSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="redSlider"/>
                                 </DockPanel>
-                                <Label>Parameter Green</Label>
+                                <Label>Green</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=greenSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="greenSlider"/>
                                 </DockPanel>
-                                <Label>Parameter Blue</Label>
+                                <Label>Blue</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=blueSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="blueSlider"/>
                                 </DockPanel>
+                                <Separator/>
+                                <Label FontSize="20" FontWeight="Bold">Generating Boids</Label>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <StackPanel Margin="15,10,15,0">
+                                        <ItemsControl ItemsSource="{Binding Simulation.Species}" >
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*"/>
+                                                            <RowDefinition Height="*"/>
+                                                        </Grid.RowDefinitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.Resources>
+                                                            <Style TargetType="{x:Type Button}">
+                                                                <Setter Property="Margin" Value="5,5,5,5"/>
+                                                            </Style>
+                                                        </Grid.Resources>
+                                                        <Label Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="{Binding Path=Name}"/>
+                                                        <Button Grid.Column="0" Grid.Row="1" Content="Remove" 
+                                                                Command="{Binding Path=DataContext.RemoveBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                                CommandParameter="{Binding Species}" FocusManager.FocusedElement="{Binding ElementName=window}"/>
+                                                        <Button Grid.Column="1" Grid.Row="1" Content="Add" 
+                                                                Command="{Binding Path=DataContext.AddBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                                CommandParameter="{Binding Species}" FocusManager.FocusedElement="{Binding ElementName=window}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </ScrollViewer>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Species">
-                        <ScrollViewer>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <ComboBox ItemsSource="{Binding Simulation.Species}" 
                                           SelectedItem="{Binding Simulation.SelectedSpecies}" 
@@ -216,6 +230,44 @@
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
+                                        </DataTemplate>
+                                    </ContentPresenter.ContentTemplate>
+                                </ContentPresenter>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Selected Boid">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <ContentPresenter Content="{Binding ElementName=worldCanvas, Path=SelectedItem}">
+                                    <ContentPresenter.ContentTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.Resources>
+                                                    <Style TargetType="{x:Type TextBlock}">
+                                                        <Setter Property="FontSize" Value="16"/>
+                                                        <Setter Property="Margin" Value="15,15,0,0"/>
+                                                    </Style>
+                                                </Grid.Resources>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Label Grid.Column="0" Grid.Row="0" Content="X-Position:"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Position.Value.X}"/>
+                                                <Label Grid.Column="0" Grid.Row="1" Content="Y-Position:"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Position.Value.Y}"/>
+                                                <Label Grid.Column="0" Grid.Row="2" Content="X-Velocity:"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Velocity.Value.X}"/>
+                                                <Label Grid.Column="0" Grid.Row="3" Content="Y-Velocity:"/>
+                                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Velocity.Value.Y}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </ContentPresenter.ContentTemplate>
                                 </ContentPresenter>

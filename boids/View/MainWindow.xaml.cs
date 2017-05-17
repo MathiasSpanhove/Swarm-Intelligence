@@ -28,5 +28,17 @@ namespace View
         {
             InitializeComponent();
         }
+
+        private void window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F11 && this.WindowState == WindowState.Maximized) {
+                this.WindowState = WindowState.Normal;
+                this.WindowStyle = WindowStyle.SingleBorderWindow;
+            } else if(e.Key == Key.F11) {
+                this.WindowState = WindowState.Maximized;
+                this.WindowStyle = WindowStyle.None;
+            }
+
+        }
     }
 }

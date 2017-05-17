@@ -87,6 +87,7 @@
     </Compile>
     <Compile Include="SpeciesToAnimationConverter.cs" />
     <Compile Include="SpeciesToColorConverter.cs" />
+    <Compile Include="TimerService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

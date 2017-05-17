@@ -56,71 +56,34 @@ namespace ViewModel
     public class WorldViewModel : INotifyPropertyChanged
     {
         private readonly World world;
+        private ObservableCollection<Boid> population => world.Population;
 
         public WorldViewModel(World world)
         {
             this.world = world;
 
-            HunterPopulation = new ObservableCollection<BoidViewModel>();
-            PreyPopulation = new ObservableCollection<BoidViewModel>();
+            Population = new ObservableCollection<BoidViewModel>();
+            population.CollectionChanged += ConvertBoidToViewModels;
+            ConvertBoidToViewModels(null, null);
+        }
+
+        private void ConvertBoidToViewModels(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Population.Clear();
             foreach (Boid boid in population)
             {
-                if (boid.Species.Name == "hunter")
-                    HunterPopulation.Add(new BoidViewModel(boid));
-                else if (boid.Species.Name == "prey")
-                    PreyPopulation.Add(new BoidViewModel(boid));
+                Population.Add(new BoidViewModel(boid));
             }
-        }
+        }       
 
-        private ObservableCollection<Boid> population => world.Population;
-
-        private SpeciesViewModel _selectedHunter;
-        public SpeciesViewModel SelectedHunter
+        private ObservableCollection<BoidViewModel> _population;
+        public ObservableCollection<BoidViewModel> Population
         {
-            get { return _selectedHunter; }
+            get { return _population; }
             set
             {
-                _selectedHunter = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedHunter)));
-            }
-        }
-
-        private ObservableCollection<BoidViewModel> _hunterPopulation;
-        public ObservableCollection<BoidViewModel> HunterPopulation
-        {
-            get { return _hunterPopulation; }
-            set
-            {
-                if (value == _hunterPopulation)
-                    return;
-
-                _hunterPopulation = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HunterPopulation)));
-            }
-        }
-
-        private SpeciesViewModel _selectedPrey;
-        public SpeciesViewModel SelectedPrey
-        {
-            get { return _selectedPrey; }
-            set
-            {
-                _selectedPrey = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedPrey)));
-            }
-        }
-
-        private ObservableCollection<BoidViewModel> _preyPopulation;
-        public ObservableCollection<BoidViewModel> PreyPopulation
-        {
-            get { return _preyPopulation; }
-            set
-            {
-                if (value == _preyPopulation)
-                    return;
-
-                _preyPopulation = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PreyPopulation)));
+                _population = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Population)));
             }
         }
 
@@ -149,7 +112,9 @@ namespace ViewModel
             }
         }
 
-        public String Name => species.Name;
+        public string Name => char.ToUpper(species.Name[0]) + species.Name.Substring(1);
+        public BoidSpecies Species => species;
+
         public ParameterBindings Bindings => species.Bindings;
 
         private ObservableCollection<RangedParamViewModel> _parameters;
@@ -183,7 +148,6 @@ namespace ViewModel
         public Cell<Vector2D> Position => boid.Position;
         public Cell<Vector2D> Velocity => boid.Velocity;
         public BoidSpecies Species => boid.Species;
-        public IArtificialIntelligence AI => boid.AI;
     }
 
     public class RangedParamViewModel
