@@ -2,15 +2,12 @@
 using Cells;
 using Mathematics;
 using Model;
-using Model.AI;
 using Model.Species;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ViewModel
 {
@@ -63,11 +60,11 @@ namespace ViewModel
             this.world = world;
 
             Population = new ObservableCollection<BoidViewModel>();
-            population.CollectionChanged += ConvertBoidToViewModels;
-            ConvertBoidToViewModels(null, null);
+            population.CollectionChanged += ConvertBoidPopulationToViewModels;
+            ConvertBoidPopulationToViewModels(null, null);
         }
 
-        private void ConvertBoidToViewModels(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void ConvertBoidPopulationToViewModels(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             Population.Clear();
             foreach (Boid boid in population)
@@ -143,8 +140,6 @@ namespace ViewModel
             this.boid = boid;
         }
 
-        public ParameterBindings Bindings => boid.Bindings;
-        public World World => boid.World;
         public Cell<Vector2D> Position => boid.Position;
         public Cell<Vector2D> Velocity => boid.Velocity;
         public BoidSpecies Species => boid.Species;

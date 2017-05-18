@@ -78,13 +78,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="2DVectorToAngleConverter.cs" />
-    <Compile Include="BoidSizeToMarginConverter.cs" />
     <Compile Include="CalculateWorldSizeConverter.cs" />
     <Compile Include="RangeToTickConverter.cs" />
+    <Compile Include="TextContrastConverter.cs" />
     <Compile Include="RgbConverter.cs" />
-    <Compile Include="Slider.xaml.cs">
-      <DependentUpon>Slider.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SpeciesToAnimationConverter.cs" />
     <Compile Include="SpeciesToColorConverter.cs" />
     <Compile Include="TimerService.cs" />
@@ -100,10 +97,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Slider.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

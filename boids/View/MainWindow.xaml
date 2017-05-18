@@ -6,10 +6,9 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:View"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Swarm Intelligence (Boids)" Height="1000" Width="1800"
-        Name="window"
-        FocusManager.FocusedElement="{Binding ElementName=window}"
-        KeyDown="window_KeyDown">
+        Name="window" KeyDown="window_KeyDown">
     <Window.InputBindings>
         <KeyBinding Key="Pause" Command="{Binding Pause}"/>
     </Window.InputBindings>
@@ -18,11 +17,11 @@
         <local:SpeciesToColorConverter x:Key="SpeciesToColorConverter"/>
         <local:SpeciesToAnimationConverter x:Key="SpeciesToAnimationConverter"/>
         <local:_2DVectorToAngleConverter x:Key="_2DVectorToAngleConverter"/>
-        <local:BoidSizeToMarginConverter x:Key="BoidSizeToMarginConverter"/>
         <local:CalculateWorldSizeConverter x:Key="CalculateWorldSizeConverter"/>
-        <local:RgbConverter x:Key="RgbConverter"/>
+        <local:RangeToTickConverter x:Key="RangeToTickConverter"/>
 
         <!--Background brush-->
+        <local:RgbConverter x:Key="RgbConverter"/>
         <SolidColorBrush x:Key="BackgroundBrush">
             <SolidColorBrush.Color>
                 <MultiBinding Converter="{StaticResource RgbConverter}">
@@ -32,7 +31,21 @@
                 </MultiBinding>
             </SolidColorBrush.Color>
         </SolidColorBrush>
+
+        <!--Text brush-->
+        <local:TextContrastConverter x:Key="TextContrastConverter"/>
+        <SolidColorBrush x:Key="TextBrush">
+            <SolidColorBrush.Color>
+                <MultiBinding Converter="{StaticResource TextContrastConverter}">
+                    <Binding Path="Value" ElementName="redSlider" />
+                    <Binding Path="Value" ElementName="greenSlider" />
+                    <Binding Path="Value" ElementName="blueSlider" />
+                </MultiBinding>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
     </Window.Resources>
+    
+    
     <Grid x:Name="Wrapper">
         <Grid.Background>
             <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
@@ -42,8 +55,10 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="10*" MinWidth="300" MaxWidth="600"/>
         </Grid.ColumnDefinitions>
+
+        <!-- VIEWBOX WITH SIMULATION -->
         <Viewbox Stretch="Fill" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
-            <ListBox Name="worldCanvas" ItemsSource="{Binding Simulation.World.Population}" HorizontalAlignment="Left" VerticalAlignment="Top"
+            <ListBox Name="simulation" ItemsSource="{Binding Simulation.World.Population}" HorizontalAlignment="Left" VerticalAlignment="Top"
                           BorderThickness="0">
                 <ListBox.Background>
                     <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
@@ -73,17 +88,44 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Path=Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
+                        <DataTemplate.Resources>
+                            <DataTemplate x:Key="ellipse">
+                                <Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" 
+                                     Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                            </DataTemplate>
+                            <DataTemplate x:Key="gif">
+                                <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
                                Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
-                            <Image.RenderTransform>
-                                <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
-                            </Image.RenderTransform>
-                        </Image>
-                        <!--<Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
-                            <Ellipse.RenderTransform>
-                                <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
-                            </Ellipse.RenderTransform>
-                        </Ellipse>-->
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                            </DataTemplate>
+                            <DataTemplate x:Key="nyan">
+                                <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="images/nyancat.gif" 
+                               Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                            </DataTemplate>
+                        </DataTemplate.Resources>
+                        <ContentPresenter x:Name="boidframe" ContentTemplate="{DynamicResource ellipse}"/>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=GifRadioButton, Path=IsChecked}" Value="True">
+                                <Setter TargetName="boidframe" Property="ContentTemplate" Value="{DynamicResource gif}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=PartyRadioButton, Path=IsChecked}" Value="True">
+                                <Setter TargetName="boidframe" Property="ContentTemplate" Value="{DynamicResource nyan}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=NormalRadioButton, Path=IsChecked}" Value="True">
+                                <Setter TargetName="boidframe" Property="ContentTemplate" Value="{DynamicResource ellipse}"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -91,10 +133,15 @@
 
         <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
 
+        <!-- SETTINGS GRID WITH A TABCONTROL -->
         <Grid Grid.Column="2">
             <DockPanel x:Name="SettingsPanel">
-                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" HorizontalAlignment="Center" 
-                           TextDecorations="Underline" FontWeight="Bold" FontSize="32" Text="Simulation Settings"/>
+                <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" HorizontalAlignment="Center"
+                           TextDecorations="Underline" FontWeight="Bold" FontSize="32" Text="Simulation Settings">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="{Binding Color, Source={StaticResource TextBrush}}"/>
+                    </TextBlock.Foreground>
+                </TextBlock>
                 <TabControl Margin="0,20,0,0" VerticalAlignment="Stretch">
                     <TabControl.Background>
                         <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
@@ -106,9 +153,23 @@
                         <Style TargetType="{x:Type Label}">
                             <Setter Property="FontSize" Value="16"/>
                             <Setter Property="Margin" Value="15,10,0,0"/>
+                            <Setter Property="Foreground">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{Binding Color, Source={StaticResource TextBrush}}"/>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                         <Style TargetType="{x:Type Slider}">
                             <Setter Property="Margin" Value="10,0,10,0"/>
+                        </Style>
+                        <Style TargetType="{x:Type RadioButton}">
+                            <Setter Property="FontSize" Value="15"/>
+                            <Setter Property="Margin" Value="10,0,10,0"/>
+                            <Setter Property="Foreground">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{Binding Color, Source={StaticResource TextBrush}}"/>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                         <Style TargetType="{x:Type Separator}">
                             <Setter Property="Margin" Value="10,30,10,0"/>
@@ -135,16 +196,24 @@
                             </Setter>
                         </Style>
                     </TabControl.Resources>
+                    
+                    <!-- FIRST TAB WITH GENERAL SETTINGS -->
                     <TabItem Header="World">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
+                                <Label FontSize="20" FontWeight="Bold">General</Label>
                                 <Label>Boid Size</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=slBoidSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                                    <Slider Value="30" Minimum="5" Maximum="300" TickFrequency="1" IsSnapToTickEnabled="True" Name="slBoidSize"/>
+                                    <Slider Value="30" Minimum="5" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True" Name="slBoidSize"/>
                                 </DockPanel>
-                                <Separator/>
+                                <Label>Boid Skin</Label>
+                                <StackPanel  Margin="10,15,0,10" Orientation="Horizontal">
+                                    <RadioButton x:Name="NormalRadioButton" IsChecked="True" Content="Default"/>
+                                    <RadioButton x:Name="GifRadioButton" Content="Animated"/>
+                                    <RadioButton x:Name="PartyRadioButton" Content="Rainbow"/>
+                                </StackPanel>
                                 <Label>Simulation Speed</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
@@ -193,12 +262,12 @@
                                                             </Style>
                                                         </Grid.Resources>
                                                         <Label Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="{Binding Path=Name}"/>
-                                                        <Button Grid.Column="0" Grid.Row="1" Content="Remove" 
-                                                                Command="{Binding Path=DataContext.RemoveBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                                                CommandParameter="{Binding Species}" FocusManager.FocusedElement="{Binding ElementName=window}"/>
-                                                        <Button Grid.Column="1" Grid.Row="1" Content="Add" 
+                                                        <Button Grid.Column="0" Grid.Row="1" Content="Add" 
                                                                 Command="{Binding Path=DataContext.AddBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                                                                CommandParameter="{Binding Species}" FocusManager.FocusedElement="{Binding ElementName=window}"/>
+                                                                CommandParameter="{Binding Species}"/>
+                                                        <Button Grid.Column="1" Grid.Row="1" Content="Remove" 
+                                                                Command="{Binding Path=DataContext.RemoveBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                                                CommandParameter="{Binding Species}"/>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
@@ -208,6 +277,8 @@
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
+
+                    <!-- SECOND TAB WITH SPECIES PARAMETERS -->
                     <TabItem Header="Species">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
@@ -226,7 +297,23 @@
                                             <ItemsControl ItemsSource="{Binding Parameters}" >
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <ContentControl Content="{Binding}"/>
+                                                        <StackPanel>
+                                                            <StackPanel.Resources>
+                                                                <Style TargetType="{x:Type DockPanel}">
+                                                                    <Setter Property="Margin" Value="0,10,10,10"/>
+                                                                </Style>
+                                                                <Style TargetType="{x:Type Slider}">
+                                                                    <Setter Property="Margin" Value="15,0,0,0"/>
+                                                                </Style>
+                                                            </StackPanel.Resources>
+                                                            <Label Content="{Binding Path=Label}"/>
+                                                            <DockPanel>
+                                                                <TextBox Text="{Binding ElementName=slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
+                                                                        DockPanel.Dock="Right" TextAlignment="Right" Width="40" IsEnabled="False"/>
+                                                                <Slider Value="{Binding Path=Current.Value}" Minimum="{Binding Path=Minimum}" Maximum="{Binding Path=Maximum}" 
+                                                                        TickFrequency="{Binding Converter={StaticResource RangeToTickConverter}}" IsSnapToTickEnabled="True" Name="slider"/>
+                                                            </DockPanel>
+                                                        </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
@@ -236,10 +323,12 @@
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
+
+                    <!-- THIRD TAB WITH SELECTED BOID PARAMETERS -->
                     <TabItem Header="Selected Boid">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
-                                <ContentPresenter Content="{Binding ElementName=worldCanvas, Path=SelectedItem}">
+                                <ContentPresenter Content="{Binding ElementName=simulation, Path=SelectedItem}">
                                     <ContentPresenter.ContentTemplate>
                                         <DataTemplate>
                                             <Grid>
@@ -247,6 +336,11 @@
                                                     <Style TargetType="{x:Type TextBlock}">
                                                         <Setter Property="FontSize" Value="16"/>
                                                         <Setter Property="Margin" Value="15,15,0,0"/>
+                                                        <Setter Property="Foreground">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush Color="{Binding Color, Source={StaticResource TextBrush}}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
                                                     </Style>
                                                 </Grid.Resources>
                                                 <Grid.RowDefinitions>
