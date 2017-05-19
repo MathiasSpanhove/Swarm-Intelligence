@@ -31,12 +31,22 @@ namespace View
 
         private void window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.F11 && this.WindowState == WindowState.Maximized) {
+            // Disable fullscreen with F11 (if already in fullscreen)
+            if (e.Key == Key.F11 && this.WindowState == WindowState.Maximized)
+            {
                 this.WindowState = WindowState.Normal;
                 this.WindowStyle = WindowStyle.SingleBorderWindow;
-            } else if(e.Key == Key.F11) {
+            }
+            // Enable fullscreen with F11
+            else if(e.Key == Key.F11)
+            {
                 this.WindowState = WindowState.Maximized;
                 this.WindowStyle = WindowStyle.None;
+            }
+            // Deselect Selected Boid in the simulation with Escape
+            else if(e.Key == Key.Escape)
+            {
+                simulation.SelectedIndex = -1;
             }
 
         }
