@@ -77,13 +77,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="2DVectorToAngleConverter.cs" />
-    <Compile Include="CalculateWorldSizeConverter.cs" />
-    <Compile Include="RangeToTickConverter.cs" />
-    <Compile Include="TextContrastConverter.cs" />
-    <Compile Include="RgbConverter.cs" />
-    <Compile Include="SpeciesToAnimationConverter.cs" />
-    <Compile Include="SpeciesToColorConverter.cs" />
+    <Compile Include="Converters\2DVectorToAngleConverter.cs" />
+    <Compile Include="Converters\CalculateWorldSizeConverter.cs" />
+    <Compile Include="Converters\RangeToTickConverter.cs" />
+    <Compile Include="Converters\TextContrastConverter.cs" />
+    <Compile Include="Converters\RgbConverter.cs" />
+    <Compile Include="Converters\SpeciesToAnimationConverter.cs" />
+    <Compile Include="Converters\SpeciesToColorConverter.cs" />
     <Compile Include="TimerService.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -141,16 +141,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\nyancat.gif" />
+    <Resource Include="Images\nyancat.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\hunter.gif" />
+    <Resource Include="Images\hunter.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\prey.gif" />
+    <Resource Include="Images\prey.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\galaxy.jpg" />
+    <Resource Include="Images\galaxy.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

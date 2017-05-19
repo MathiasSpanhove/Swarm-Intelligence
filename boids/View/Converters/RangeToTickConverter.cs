@@ -14,8 +14,8 @@ namespace View
         {
             if (value is RangedParamViewModel)
             {
-                RangedParamViewModel vm = (RangedParamViewModel)value;
-                return (vm.Maximum - vm.Minimum) / 1000;
+                RangedParamViewModel param = (RangedParamViewModel)value;
+                return (param.Maximum - param.Minimum) / 1000;
             }
             return 1;
         }

@@ -13,9 +13,9 @@ namespace View
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value is HunterSpecies)
-                return "images/hunter.gif";
+                return "Images/hunter.gif";
             else
-                return "images/prey.gif";
+                return "Images/prey.gif";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
