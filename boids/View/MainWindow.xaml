@@ -64,12 +64,14 @@
                     <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
                 </ListBox.Background>
                 <ListBox.Width>
+                    <!-- Calculate the width of the simulation canvas using WorldWidth + Boidsize -->
                     <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
                         <Binding Path="Simulation.World.Width.Value"/>
                         <Binding ElementName="slBoidSize" Path="Value"/>
                     </MultiBinding>
                 </ListBox.Width>
                 <ListBox.Height>
+                    <!-- Calculate the height of the simulation canvas using WorldHeight + Boidsize -->
                     <MultiBinding Converter="{StaticResource CalculateWorldSizeConverter}">
                         <Binding Path="Simulation.World.Height.Value"/>
                         <Binding ElementName="slBoidSize" Path="Value"/>
@@ -88,6 +90,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
+                        <!-- Creating 3 Datatemplates for different boid skins -->
                         <DataTemplate.Resources>
                             <DataTemplate x:Key="ellipse">
                                 <Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" 
@@ -106,7 +109,7 @@
                                 </Image>
                             </DataTemplate>
                             <DataTemplate x:Key="nyan">
-                                <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="images/nyancat.gif" 
+                                <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="Images/nyancat.gif" 
                                Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
@@ -114,7 +117,11 @@
                                 </Image>
                             </DataTemplate>
                         </DataTemplate.Resources>
+                        
+                        <!-- ContentPresenter that implements one of the templates above -->
                         <ContentPresenter x:Name="boidframe" ContentTemplate="{DynamicResource ellipse}"/>
+
+                        <!-- Change ContentPresenter template when a different radiobutton is checked -->
                         <DataTemplate.Triggers>
                             <DataTrigger Binding="{Binding ElementName=GifRadioButton, Path=IsChecked}" Value="True">
                                 <Setter TargetName="boidframe" Property="ContentTemplate" Value="{DynamicResource gif}"/>
@@ -202,25 +209,34 @@
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <Label FontSize="20" FontWeight="Bold">General</Label>
+                                
+                                <!-- Boid Size Slider -->
                                 <Label>Boid Size</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=slBoidSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="30" Minimum="5" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True" Name="slBoidSize"/>
                                 </DockPanel>
+
+                                <!-- Change boid skin RadioButtons -->
                                 <Label>Boid Skin</Label>
                                 <StackPanel  Margin="10,15,0,10" Orientation="Horizontal">
                                     <RadioButton x:Name="NormalRadioButton" IsChecked="True" Content="Default"/>
                                     <RadioButton x:Name="GifRadioButton" Content="Animated"/>
                                     <RadioButton x:Name="PartyRadioButton" Content="Rainbow"/>
                                 </StackPanel>
+
+                                <!-- Simulation Speed Slider -->
                                 <Label>Simulation Speed</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="{Binding SpeedUpMultiplier}" Minimum="0.1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="True" Name="speedup"/>
                                 </DockPanel>
+                                
                                 <Separator/>
+
+                                <!-- RGB BackgroundColor Sliders -->
                                 <Label FontSize="20" FontWeight="Bold">Background Color</Label>
                                 <Label>Red</Label>
                                 <DockPanel>
@@ -240,7 +256,10 @@
                                              DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="blueSlider"/>
                                 </DockPanel>
+                                
                                 <Separator/>
+                                
+                                <!-- Add and Remove buttons for all Species -->
                                 <Label FontSize="20" FontWeight="Bold">Generating Boids</Label>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <StackPanel Margin="15,10,15,0">
@@ -282,6 +301,8 @@
                     <TabItem Header="Species">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
+                                
+                                <!-- Combobox to select which species parameter sliders you want to see -->
                                 <ComboBox ItemsSource="{Binding Simulation.Species}" 
                                           SelectedItem="{Binding Simulation.SelectedSpecies}" 
                                           IsSynchronizedWithCurrentItem="True">
@@ -291,6 +312,8 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
+                                
+                                <!-- Generating all Parameter Sliders for Selected Species (RangedDoubleParameter Bindings) -->
                                 <ContentPresenter Content="{Binding Simulation.SelectedSpecies}">
                                     <ContentPresenter.ContentTemplate>
                                         <DataTemplate>
