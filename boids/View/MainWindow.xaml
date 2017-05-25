@@ -93,7 +93,7 @@
                         <DataTemplate.Resources>
                             <DataTemplate x:Key="ellipse">
                                 <Ellipse RenderTransformOrigin="0.5, 0.5" Fill="{Binding Path=Species, Converter={StaticResource SpeciesToColorConverter}}" 
-                                     Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
+                                         Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                                     <Ellipse.RenderTransform>
                                         <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                                     </Ellipse.RenderTransform>
@@ -101,7 +101,7 @@
                             </DataTemplate>
                             <DataTemplate x:Key="gif">
                                 <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="{Binding Species, Converter={StaticResource SpeciesToAnimationConverter}}" 
-                               Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
+                                       Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                                     </Image.RenderTransform>
@@ -109,7 +109,7 @@
                             </DataTemplate>
                             <DataTemplate x:Key="nyan">
                                 <Image RenderTransformOrigin="0.5, 0.5" gif:ImageBehavior.AnimatedSource="Images/nyancat.gif" 
-                               Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
+                                       Width="{Binding ElementName=slBoidSize, Path=Value}" Height="{Binding ElementName=slBoidSize, Path=Value}">
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="{Binding Path=Velocity.Value, Converter={StaticResource _2DVectorToAngleConverter}}"/>
                                     </Image.RenderTransform>
