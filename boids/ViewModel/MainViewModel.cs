@@ -73,6 +73,15 @@ namespace ViewModel
             }
         }
 
+        private ICommand _removeAll;
+        public ICommand RemoveAll
+        {
+            get
+            {
+                return _removeAll ?? (_removeAll = new CommandHandler(() => DeleteAllBoids(), true));
+            }
+        }
+
         private void CreateBoid(BoidSpecies specie)
         {
             int index = this.simulation.Species.IndexOf(specie);
@@ -92,6 +101,11 @@ namespace ViewModel
                     break;
                 }
             }
+        }
+
+        private void DeleteAllBoids()
+        {
+            this.simulation.World.Population.Clear();
         }
 
         // Timer

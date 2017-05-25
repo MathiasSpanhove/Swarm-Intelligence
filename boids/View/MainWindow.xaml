@@ -44,8 +44,7 @@
             </SolidColorBrush.Color>
         </SolidColorBrush>
     </Window.Resources>
-    
-    
+
     <Grid x:Name="Wrapper">
         <Grid.Background>
             <SolidColorBrush Color="{Binding Color, Source={StaticResource BackgroundBrush}}"/>
@@ -261,38 +260,41 @@
                                 
                                 <!-- Add and Remove buttons for all Species -->
                                 <Label FontSize="20" FontWeight="Bold">Generating Boids</Label>
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <StackPanel Margin="15,10,15,0">
-                                        <ItemsControl ItemsSource="{Binding Simulation.Species}" >
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="*"/>
-                                                        </Grid.RowDefinitions>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Grid.Resources>
-                                                            <Style TargetType="{x:Type Button}">
-                                                                <Setter Property="Margin" Value="5,5,5,5"/>
-                                                            </Style>
-                                                        </Grid.Resources>
-                                                        <Label Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="{Binding Path=Name}"/>
-                                                        <Button Grid.Column="0" Grid.Row="1" Content="Add" 
+                                <StackPanel Margin="15,10,15,0">
+                                    <ItemsControl ItemsSource="{Binding Simulation.Species}" >
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.Resources>
+                                                        <Style TargetType="{x:Type Button}">
+                                                            <Setter Property="Margin" Value="5,5,5,5"/>
+                                                        </Style>
+                                                    </Grid.Resources>
+                                                    <Label Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Content="{Binding Path=Name}"/>
+                                                    <Button Grid.Column="0" Grid.Row="1" Content="Add" 
                                                                 Command="{Binding Path=DataContext.AddBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                                                 CommandParameter="{Binding Species}"/>
-                                                        <Button Grid.Column="1" Grid.Row="1" Content="Remove" 
+                                                    <Button Grid.Column="1" Grid.Row="1" Content="Remove" 
                                                                 Command="{Binding Path=DataContext.RemoveBoid, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                                                                 CommandParameter="{Binding Species}"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </ScrollViewer>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <Separator/>
+                                
+                                <!-- Clear all boids button -->
+                                <Button Content="Clear Simulation" HorizontalAlignment="Center" Padding="20,5" Margin="5,20" Command="{Binding RemoveAll}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
