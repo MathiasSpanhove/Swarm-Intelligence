@@ -213,7 +213,7 @@
                                 <Label>Boid Size</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=slBoidSize, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" PreviewTextInput="NumberValidationTextBox"/>
                                     <Slider Value="30" Minimum="5" Maximum="200" TickFrequency="1" IsSnapToTickEnabled="True" Name="slBoidSize"/>
                                 </DockPanel>
 
@@ -229,7 +229,7 @@
                                 <Label>Simulation Speed</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=speedup, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" PreviewTextInput="DoubleValidationTextBox"/>
                                     <Slider Value="{Binding SpeedUpMultiplier}" Minimum="0.1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="True" Name="speedup"/>
                                 </DockPanel>
                                 
@@ -240,19 +240,19 @@
                                 <Label>Red</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=redSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" PreviewTextInput="NumberValidationTextBox"/>
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="redSlider"/>
                                 </DockPanel>
                                 <Label>Green</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=greenSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" PreviewTextInput="NumberValidationTextBox"/>
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="greenSlider"/>
                                 </DockPanel>
                                 <Label>Blue</Label>
                                 <DockPanel>
                                     <TextBox Text="{Binding ElementName=blueSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" 
-                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
+                                             DockPanel.Dock="Right" TextAlignment="Right" Width="40" PreviewTextInput="NumberValidationTextBox"/>
                                     <Slider Value="200" Minimum="0" Maximum="255" TickFrequency="1" IsSnapToTickEnabled="True" Name="blueSlider"/>
                                 </DockPanel>
                                 
