@@ -29,8 +29,15 @@ namespace View
             ServiceLocator.SetLocatorProvider(() => locator);
 
             var main = new MainWindow();
-            main.DataContext = new MainViewModel();
+            var mainViewModel = new MainViewModel();
+            mainViewModel.ApplicationExit += MainViewModel_ApplicationExit;
+            main.DataContext = mainViewModel;
             main.Show();
+        }
+
+        private void MainViewModel_ApplicationExit()
+        {
+            Application.Current.Shutdown();
         }
     }
 }

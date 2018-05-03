@@ -19,22 +19,13 @@ namespace ViewModel
         {
             this.simulation = simulation;
             this.Species = simulation.Species.Select(x => new SpeciesViewModel(x)).ToList();
-            this.SelectedSpecies = Species.FirstOrDefault();
+            this.SelectedSpecies = Cell.Create(Species.FirstOrDefault());
         }
 
         private World world => simulation.World;
         public WorldViewModel World => new WorldViewModel(world);
 
-        private SpeciesViewModel _selectedSpecies;
-        public SpeciesViewModel SelectedSpecies
-        {
-            get { return _selectedSpecies; }
-            set
-            {
-                _selectedSpecies = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedSpecies)));
-            }
-        }
+        public Cell<SpeciesViewModel> SelectedSpecies { get; set; }
 
         private IEnumerable<SpeciesViewModel> _species;
         public IEnumerable<SpeciesViewModel> Species

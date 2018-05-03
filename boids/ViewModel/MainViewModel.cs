@@ -13,6 +13,8 @@ namespace ViewModel
     {
         public MainViewModel()
         {
+            this.Closing = new ClosingCommand(this);
+
             this.simulation = new Simulation();
             this.Simulation = new SimulationViewModel(this.simulation);
             this.startupBoids();
@@ -23,6 +25,11 @@ namespace ViewModel
             _timer.Tick += Timer_Tick;
             _timer.Start(new TimeSpan(0, 0, 0, 0, TickMilliseconds));
         }
+
+        // Exit Application
+
+        public ICommand Closing { get; private set; }
+        public event Action ApplicationExit;
 
         // Simulation
 
@@ -190,6 +197,28 @@ namespace ViewModel
             {
                 _action(parameter);
             }
+        }
+
+        private class ClosingCommand : ICommand
+        {
+            public ClosingCommand(MainViewModel mainVm)
+            {
+                _vm = mainVm;
+            }
+
+            public event EventHandler CanExecuteChanged;
+
+            public bool CanExecute(object parameter)
+            {
+                return true;
+            }
+
+            public void Execute(object parameter)
+            {
+                _vm.ApplicationExit?.Invoke();
+            }
+
+            private MainViewModel _vm;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
