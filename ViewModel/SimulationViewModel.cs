@@ -22,8 +22,7 @@ namespace ViewModel
             this.SelectedSpecies = Species.FirstOrDefault();
         }
 
-        private World world => simulation.World;
-        public WorldViewModel World => new WorldViewModel(world);
+        public WorldViewModel World => new WorldViewModel(simulation.World);
 
         private SpeciesViewModel _selectedSpecies;
         public SpeciesViewModel SelectedSpecies
@@ -53,21 +52,20 @@ namespace ViewModel
     public class WorldViewModel : INotifyPropertyChanged
     {
         private readonly World world;
-        private ObservableCollection<Boid> population => world.Population;
 
         public WorldViewModel(World world)
         {
             this.world = world;
 
             Population = new ObservableCollection<BoidViewModel>();
-            population.CollectionChanged += ConvertBoidPopulationToViewModels;
+            world.Population.CollectionChanged += ConvertBoidPopulationToViewModels;
             ConvertBoidPopulationToViewModels(null, null);
         }
 
         private void ConvertBoidPopulationToViewModels(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             Population.Clear();
-            foreach (Boid boid in population)
+            foreach (Boid boid in world.Population)
             {
                 Population.Add(new BoidViewModel(boid));
             }
@@ -84,9 +82,8 @@ namespace ViewModel
             }
         }
 
-        private ParameterBindings bindings => world.Bindings;
-        public Cell<double> Width => bindings.Read(World.Width);
-        public Cell<double> Height => bindings.Read(World.Height);
+        public Cell<double> Width => world.Bindings.Read(World.Width);
+        public Cell<double> Height => world.Bindings.Read(World.Height);
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

@@ -17,7 +17,7 @@ namespace ViewModel
 
             this.simulation = new Simulation();
             this.Simulation = new SimulationViewModel(this.simulation);
-            this.startupBoids();
+            this.StartupBoids();
 
             this.TickMilliseconds = 20;
             this.SpeedUpMultiplier = 1.0;
@@ -47,7 +47,7 @@ namespace ViewModel
             this.simulation.Species[1].CreateBoid(new Vector2D(x, y));
         }
 
-        private void startupBoids()
+        private void StartupBoids()
         {
             CreateHunter(50, 50);
             CreateHunter(200, 200);
